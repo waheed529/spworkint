@@ -1,0 +1,77 @@
+spring:
+  profiles:
+    active: "DIT"
+  main:
+    banner-mode: "off"
+---
+spring:
+ profiles: dev
+ 
+ services:
+        customer-service: 
+             host-name: "http://localhost:8080/"
+             context-path: "CustomerService/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"
+             response-names: "customer,search,prospect,id"
+        customer1-service: 
+             host-name: "http://127.0.0.1:8080/"
+             context-path: "customer/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"
+             response-names: "customer,search,prospect,id"
+        customer2-service: 
+             host-name: "http://127.0.0.1:8080/"
+             context-path: "customer/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"  
+             response-names: "customer,search,prospect,id"
+datasource:
+    jndi-name:  java:/fnaOracleDS
+    jdbcUrl: jdbc:oracle:thin:@10.10.5.16:1521/SIR14578
+    username: CIMB
+    password: CIMB
+    driverClassName: oracle.jdbc.driver.OracleDriver
+logging:
+  file: C:/Temp/logs/fnaApplog-.log
+  pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+  level:
+    org.springframework.web: ERROR
+    com.intellect.fna: DEBUG
+    org.hibernate: ERROR
+
+---
+
+spring:
+  profiles: DIT
+services:
+        customer-service: 
+             host-name: "http://127.0.0.1:8080/"
+             context-path: "GateWayService/customer/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"
+             response-names: "customer,search,prospect,id"
+        customer1-service: 
+             host-name: "http://127.0.0.1:8080/"
+             context-path: "GateWayService/customer/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"
+             response-names: "customer,search,prospect,id"
+        customer2-service: 
+             host-name: "http://127.0.0.1:8080/"
+             context-path: "GateWayService/customer/"
+             end-points : "getallcustomerdetails,getDetails,getAllProspectsDetails,getIdType"
+             response-names: "customer,search,prospect,id"    
+datasource:
+     jndi-name:  java:/fnaOracleDS
+     jdbcUrl: jdbc:oracle:thin:@10.10.9.74:1521/SIR16120
+     username: CIMBTHAISIT_VIEW
+     password: CIMBTHAISIT_VIEW
+     driverClassName: oracle.jdbc.driver.OracleDriver
+logging:
+   file: C:/Temp/logs/fnaApplog-.log
+   pattern:
+    console: "%d %-5level %logger : %msg%n"
+    file: "%d %-5level [%thread] %logger : %msg%n"
+   level:
+     org.springframework.web: ERROR
+     com.intellect.fna: ERROR
+     org.hibernate: ERROR
+    
