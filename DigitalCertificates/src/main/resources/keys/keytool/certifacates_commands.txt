@@ -1,0 +1,55 @@
+1) The below commanad is used to generate client side certificate which contains both public & private keys (keypair) by using keytool:
+   keytool -genkeypair -alias pub_pri_keypair -keyalg RSA -validity 365 -keystore clientauth.p12 -storetype PKCS12
+	Enter keystore password: abc123
+	Re-enter new password: abc123
+	What is your first and last name?
+	  [Unknown]:  Kandepu Ramesh
+	What is the name of your organizational unit?
+	  [Unknown]:  Training
+	What is the name of your organization?
+	  [Unknown]:  Aspire
+	What is the name of your City or Locality?
+	  [Unknown]:  Hyderabad
+	What is the name of your State or Province?
+	  [Unknown]:  Telangana
+	What is the two-letter country code for this unit?
+	  [Unknown]:  IN
+	Is CN=Kandepu Ramesh, OU=Training, O=Aspire, L=Hyderabad, ST=Telangana, C=IN correct?
+	  [no]:  yes
+   Note: A key pair includes both a private and public key
+
+2) Actually the validity of the client certificate needs to be verified by the certifying authority that created it. 
+   As we have created our own self-signed client certificate using the keytool command, the Java VM will not implicitly trust it.
+   Hence we need to force Tomcat to recognize the certificate as a trusted certificate. We do this by exporting the public key from the key pair and add it to the Tomcat trust store (in next step).   
+   The client's public key should be loaded into the server's trust store. Hence export the public key from the key pair (i.e., from above client side certificate):
+   keytool -exportcert -alias pub_pri_keypair -keystore clientauth.p12 -storetype PKCS12 -storepass abc123 -file clientpublickey.cer
+
+3) Create tomcat trust store and include above public key in that trust store to force the JVM to trust self-signed certificate.
+   keytool -importcert -alias trust_store_alias -keystore tomcat.truststore -file clientpublickey.cer
+   Enter keystore password: aspire123
+   Re-enter new password:   aspire123
+   Certificate was added to keystore
+
+4) Configure certificates in tomcat
+#TOMCAT_HOME/conf/server.xml
+<Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+           maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
+           clientAuth="true" sslProtocol="TLS"
+	   keystoreFile="D:/SPRING SECURITY/Certificates/Keytool/practice/clientauth.p12" keystorePass="abc123"
+	   truststoreFile="D:/SPRING SECURITY/Certificates/Keytool/practice/tomcat.truststore" truststorePass="aspire123"
+/>
+
+Firefox [latest]
+================
+Tools --> Options --> Privacy & Security --> Certificates --> View Certificates --> Goto 'Your Certificates' tab --> click on 'Import' button --> select 'clientauth.p12'
+
+Firefox [old]
+================
+Tools --> Options --> Advanced --> Certificates --> View Certificates --> Goto 'Your Certificates' tab --> Import --> select 'clientauth.p12'  (old firefox version)
+
+
+Google Chrome
+=============
+Customize and control Google settings --> Settings --> Search for "Privacy and Security" --> Click on 'Manage certificates' --> Stay in 'Personal' tab --> Click on 'Import' --> select 'clientauth.p12'  
+
+Sun provides a relatively simple command-line tool, called keytool, which can easily create a "self-signed" Certificate. Self-signed Certificates are simply user generated Certificates which have not been signed by a well-known CA and are, therefore, not really guaranteed to be authentic at all. While self-signed certificates can be useful for some testing scenarios, they are not suitable for any form of production use.

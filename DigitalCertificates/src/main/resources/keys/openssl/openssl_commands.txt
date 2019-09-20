@@ -1,0 +1,55 @@
+We need to install openssl (Win64OpenSSL-1_1_0h.exe) from softwares folder.
+
+Run below commands from 'D:\SPRING SECURITY\Certificates\OpenSSL\Ramesh' folder:
+1) The following command is used to create private key:
+   openssl genrsa -des3 -out server.key 2048
+   Enter pass phrase for server.key: abc123
+   Note: The server.key contains only private key.
+
+2) openssl req -new -key server.key -out server.csr
+   Enter pass phrase for server.key: abc123
+   Country Name: IN
+   State or Province Name: Telangana
+   Locality Name: Hyderabad
+   Organization Name: Aspire
+   Organizational Unit Name: admin
+   Comman Name: Kandepu Ramesh
+   Email : ramesh@java2aspire.com
+   
+   Please enter the following 'extra' attributes to be sent with your certificate request 
+   A challenge password []: ramesh123
+   An optional company name []: Aspire
+    	
+3) The following command will create the self-signed x509 certificate suitable for use on a web server
+   openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+   Enter pass phrase for server.key: abc123
+   Note: The above command is used to create certificate which contains only public key.
+
+4) openssl pkcs12 -export -in server.crt -inkey server.key -out server.p12
+   Enter pass phrase for server.key: abc123
+   Enter export password: aspire123
+   Verifying export password: aspire123
+   Enter Export Password: aspire123
+   Verifying - Enter Export Password: aspire123
+   Note: The server.p12 file contains both public & private keys.
+ 
+5) The following command is used to create .pem file from .p12 file:
+   openssl pkcs12 -in server.p12 -nodes -out server.pem
+   Enter Import Password: aspire123
+
+6) keytool -import -alias tomcat-trust -file server.pem -keystore tomcat.truststore
+   Enter keystore password: aspire123
+   Re-enter new password:  aspire123
+   ...
+   Trust this certificate? [no]:  yes
+   Certificate was added to keystore
+
+7) Configure OpenSSL in Tomcat server by adding below info in %TOMCAT_HOME%/server.xml file:
+   <Connector port="8443" protocol="org.apache.coyote.http11.Http11NioProtocol"
+              maxThreads="150" SSLEnabled="true" scheme="https" secure="true"
+              clientAuth="true" sslProtocol="TLS"
+	      keystoreFile="D:/SPRING SECURITY/Certificates/OpenSSL/Ramesh/server.p12" keystorePass="aspire123"
+	      truststoreFile="D:/SPRING SECURITY/Certificates/OpenSSL/Ramesh/tomcat.truststore" truststorePass="aspire123"
+   />
+   
+8) Import .p12 into browser and enter password as aspire123
